@@ -1,41 +1,21 @@
-# jsPlumb Sample (jsplumb-sample)
+# jsPlumb Sample Course 1
 
-A Quasar Project
+jsPlumb 的基本使用方法，介绍如何创建节点、连线、锚点、Overlay
+
+### 运行环境
+
+node16.x， quasar cli
 
 ## Install the dependencies
+
 ```bash
 yarn
 # or
 npm install
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+### 本地运行项目
+
 ```bash
 quasar dev
 ```
-
-
-### Lint the files
-```bash
-yarn lint
-# or
-npm run lint
-```
-
-
-### Format the files
-```bash
-yarn format
-# or
-npm run format
-```
-
-
-
-### Build the app for production
-```bash
-quasar build
-```
-
-### Customize the configuration
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
