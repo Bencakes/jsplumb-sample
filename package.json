@@ -13,8 +13,9 @@
     "build": "quasar build"
   },
   "dependencies": {
-    "axios": "^1.2.1",
+    "@jsplumb/browser-ui": "^6.2.10",
     "@quasar/extras": "^1.16.4",
+    "axios": "^1.2.1",
     "quasar": "^2.6.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0"
