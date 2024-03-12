@@ -1,6 +1,6 @@
 # jsPlumb Sample Course 1
 
-jsPlumb 的基本使用方法，介绍如何创建节点、连线、锚点、Overlay
+jsPlumb 中的 Endpoint 参数详细介绍与演示
 
 ### 运行环境
 
