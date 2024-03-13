@@ -133,18 +133,13 @@ onMounted(() => {
     // },
   });
 
-  // jsPlumb.value.connect({
-  //   source: node1.value,
-  //   target: node2.value,
-  //   connector: 'Flowchart',
-  // });
-
   // 创建Endpoint的方式一
   // 使用字符串'Dot'指定Endpoint类型，字符串为大小写敏感
   // 默认情况下的Dot类型的radius=5px
 
   const endpoint1 = jsPlumb.value.addEndpoint(node1.value, {
     endpoint: 'Dot',
+    source: true,
   });
 
   // 创建Endpoint的方式二
@@ -152,6 +147,7 @@ onMounted(() => {
 
   const endpoint2 = jsPlumb.value.addEndpoint(node2.value, {
     endpoint: RectangleEndpoint.type,
+    target: true,
   });
 
   // 创建Endpoint的方式三
@@ -239,13 +235,6 @@ onMounted(() => {
       },
     },
   });
-
-  // jsPlumb.value.connect({
-  //   source: endpoint9,
-  //   target: endpoint8,
-  //   connector: 'Flowchart',
-  //   overlays: [{ type: 'Arrow', options: { location: 1 } }],
-  // });
 });
 </script>
 
