@@ -93,6 +93,14 @@
         <div class="col">节点11-Dot</div>
         <div class="col">调整样式</div>
       </div>
+      <div
+        class="rectangle-node items-center justify-center column"
+        ref="node12"
+        style="top: 700px; left: 300px"
+      >
+        <div class="col">节点12-Dot</div>
+        <div class="col">paintStyle</div>
+      </div>
     </div>
   </q-page>
 </template>
@@ -120,6 +128,7 @@ const node8 = ref<Element>(Object());
 const node9 = ref<Element>(Object());
 const node10 = ref<Element>(Object());
 const node11 = ref<Element>(Object());
+const node12 = ref<Element>(Object());
 
 const jsPlumb = ref<BrowserJsPlumbInstance>();
 
@@ -233,6 +242,22 @@ onMounted(() => {
         radius: 6,
         cssClass: 'real-css',
       },
+    },
+  });
+
+  const endpoint12 = jsPlumb.value.addEndpoint(node12.value, {
+    endpoint: {
+      type: 'Dot',
+      options: {
+        radius: 6,
+      },
+    },
+    paintStyle: {
+      fill: 'red',
+      stroke: 'blue',
+      strokeWidth: 2,
+      dashstyle: '2',
+      // dashstyle: '2 4'
     },
   });
 });
