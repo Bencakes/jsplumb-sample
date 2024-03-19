@@ -14,12 +14,12 @@
         ref="node2"
         style="top: 100px; left: 300px"
       >
-        节点2(坐标表示法)
+        节点2
       </div>
       <div
         class="rectangle-node items-center justify-center row"
         ref="node3"
-        style="top: 300px; left: 100px"
+        style="top: 100px; left: 500px"
       >
         节点3
       </div>
@@ -27,82 +27,110 @@
       <div
         class="rectangle-node items-center justify-center row"
         ref="node4"
-        style="top: 300px; left: 300px"
+        style="top: 100px; left: 700px"
       >
-        节点4(坐标表示法)
+        节点4
       </div>
 
       <div
         class="rectangle-node items-center justify-center row"
         ref="node5"
-        style="top: 300px; left: 500px"
+        style="top: 300px; left: 100px"
       >
-        节点5-偏移
+        节点5-source
       </div>
       <div
         class="rectangle-node items-center justify-center row"
         ref="node6"
-        style="top: 300px; left: 700px"
+        style="top: 300px; left: 300px"
       >
-        节点6-Dynamic
+        节点6-target
       </div>
 
       <div
-        class="rectangle-node items-center justify-center row"
+        class="rectangle-node items-center justify-center column"
         ref="node7"
-        style="top: 500px; left: 100px"
+        style="top: 300px; left: 500px"
       >
-        节点7-Dynamic
+        <span class="col">节点7-Bezier</span>
+        <span class="col">curviness=150</span>
       </div>
       <div
-        class="rectangle-node items-center justify-center row"
+        class="rectangle-node items-center justify-center column"
         ref="node8"
-        style="top: 500px; left: 300px"
+        style="top: 200px; left: 700px"
       >
-        节点8-Dynamic
+        <span class="col">节点8-Bezier</span>
+        <span class="col">curviness=150</span>
       </div>
 
       <div
-        class="circle-node items-center justify-center row"
+        class="rectangle-node items-center justify-center column"
         ref="node9"
-        style="top: 500px; left: 500px"
+        style="top: 300px; left: 870px"
       >
-        节点9-Circle
+        <span class="col">节点9-Bezier</span>
+        <span class="col">curviness=10</span>
       </div>
       <div
-        class="rectangle-node items-center justify-center row"
+        class="rectangle-node items-center justify-center column"
         ref="node10"
-        style="top: 500px; left: 700px"
+        style="top: 400px; left: 100px"
       >
-        节点10-Rectange
+        <span class="col">节点10-Straight</span>
+        <span class="col">默认</span>
       </div>
       <div
-        class="rectangle-node items-center justify-center row"
+        class="rectangle-node items-center justify-center column"
         ref="node11"
+        style="top: 550px; left: 200px"
+      >
+        <span class="col">节点11-Straight</span>
+        <span class="col">默认+stub=30</span>
+      </div>
+      <div
+        class="rectangle-node items-center justify-center column"
+        ref="node12"
+        style="top: 400px; left: 300px"
+      >
+        <span class="col">节点12-Straight</span>
+        <span class="col">stub=30,gap=20</span>
+      </div>
+      <div
+        class="rectangle-node items-center justify-center column"
+        ref="node13"
+        style="top: 550px; left: 400px"
+      >
+        <span class="col">节点13-Straight</span>
+        <span class="col">gap=20</span>
+      </div>
+      <div
+        class="rectangle-node items-center justify-center column"
+        ref="node14"
         style="top: 700px; left: 100px"
       >
-        节点11-Continuous
+        <span class="col">节点14-PaintStyle</span>
       </div>
       <div
-        class="rectangle-node items-center justify-center row"
-        ref="node12"
+        class="rectangle-node items-center justify-center column"
+        ref="node15"
         style="top: 700px; left: 300px"
       >
-        节点12-Continuous
+        <span class="col">节点15-PaintStyle</span>
       </div>
       <div
-        class="rectangle-node items-center justify-center row"
-        ref="node13"
+        class="rectangle-node items-center justify-center column"
+        ref="node16"
         style="top: 700px; left: 500px"
       >
-        节点13-Continuous
+        <span class="col">节点16-PaintStyle</span>
       </div>
       <div
-        class="rectangle-node items-center justify-center row"
-        ref="node14"
+        class="rectangle-node items-center justify-center column"
+        ref="node17"
         style="top: 700px; left: 700px"
       >
-        节点14-Continuous
+        <span class="col">节点17-PaintStyle</span>
       </div>
     </div>
   </q-page>
@@ -114,9 +142,7 @@ import {
   newInstance,
   BrowserJsPlumbInstance,
   AnchorLocations,
-  DotEndpoint,
-  RectangleEndpoint,
-  BlankEndpoint,
+  StraightConnector,
 } from '@jsplumb/browser-ui';
 
 const canvas = ref<HTMLElement>();
@@ -134,42 +160,22 @@ const node11 = ref<Element>(Object());
 const node12 = ref<Element>(Object());
 const node13 = ref<Element>(Object());
 const node14 = ref<Element>(Object());
+const node15 = ref<Element>(Object());
+const node16 = ref<Element>(Object());
+const node17 = ref<Element>(Object());
 
 const jsPlumb = ref<BrowserJsPlumbInstance>();
 
 onMounted(() => {
   jsPlumb.value = newInstance({
     container: canvas.value,
-  });
-
-  const endpoint1 = jsPlumb.value.addEndpoint(node1.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 10,
-      },
-    },
-    anchor: [0, 1, 0, 1],
-  });
-  const endpoint1_1 = jsPlumb.value.addEndpoint(node1.value, {
-    endpoint: {
-      type: 'Rectangle',
-      options: {
-        width: 10,
-        height: 10,
-      },
-    },
-    anchor: AnchorLocations.Top,
-  });
-
-  const endpoint2 = jsPlumb.value.addEndpoint(node2.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    anchor: [0.5, 1, 0, 1], // Bottom
+    // 全局线条样式配置
+    // paintStyle: {
+    //   stroke: 'red',
+    //   strokeWidth: 5,
+    //   outlineStroke: 'blue',
+    //   outlineWidth: 5,
+    // },
   });
 
   const endpoint3 = jsPlumb.value.addEndpoint(node3.value, {
@@ -180,7 +186,7 @@ onMounted(() => {
         height: 10,
       },
     },
-    anchor: AnchorLocations.Top,
+    anchor: AnchorLocations.Right,
   });
   const endpoint4 = jsPlumb.value.addEndpoint(node4.value, {
     endpoint: {
@@ -189,7 +195,7 @@ onMounted(() => {
         radius: 5,
       },
     },
-    anchor: [0.5, 1, 0, -1], // Bottom，朝上
+    anchor: AnchorLocations.Left,
   });
   const endpoint5 = jsPlumb.value.addEndpoint(node5.value, {
     endpoint: {
@@ -198,7 +204,8 @@ onMounted(() => {
         radius: 5,
       },
     },
-    anchor: [0.5, 1, 0, 1, 20, 10],
+    source: true,
+    anchor: AnchorLocations.Right,
   });
 
   const endpoint6 = jsPlumb.value.addEndpoint(node6.value, {
@@ -208,7 +215,8 @@ onMounted(() => {
         radius: 5,
       },
     },
-    anchor: 'AutoDefault',
+    target: true,
+    anchor: AnchorLocations.Left,
   });
 
   const endpoint7 = jsPlumb.value.addEndpoint(node7.value, {
@@ -218,21 +226,7 @@ onMounted(() => {
         radius: 5,
       },
     },
-    anchor: [
-      [0.2, 0, 0, -1],
-      [1, 0.1, 1, 0],
-      [1, 0.2, 1, 0],
-      [1, 0.2, 1, 0],
-      [1, 0.3, 1, 0],
-      [1, 0.4, 1, 0],
-      [1, 0.5, 1, 0],
-      [1, 0.6, 1, 0],
-      [1, 0.7, 1, 0],
-      [1, 0.8, 1, 0],
-      [1, 0.9, 1, 0],
-      [0.8, 1, 0, 1],
-      [0, 0.8, -1, 0],
-    ],
+    anchor: [1, 0.1, 1, 0],
   });
   const endpoint8 = jsPlumb.value.addEndpoint(node8.value, {
     endpoint: {
@@ -241,65 +235,13 @@ onMounted(() => {
         radius: 5,
       },
     },
-    anchor: [
-      [0.2, 0, 0, -1],
-      [1, 0.2, 1, 0],
-      [0.8, 1, 0, 1],
-      [0, 0.9, -1, 0],
-      [0, 0.8, -1, 0],
-      [0, 0.7, -1, 0],
-      [0, 0.6, -1, 0],
-      [0, 0.5, -1, 0],
-      [0, 0.4, -1, 0],
-      [0, 0.3, -1, 0],
-      [0, 0.2, -1, 0],
-      [0, 0.1, -1, 0],
-    ],
-  });
-  const endpoint9 = jsPlumb.value.addEndpoint(node9.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    anchor: { type: 'Perimeter', options: { shape: 'Circle' } },
-  });
-  const endpoint10 = jsPlumb.value.addEndpoint(node10.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    anchor: { type: 'Perimeter', options: { shape: 'Rectangle' } },
-  });
-
-  const endpoint11 = jsPlumb.value.addEndpoint(node11.value, {
-    anchor: 'Continuous',
-    paintStyle: { fill: 'red' },
-  });
-  const endpoint12 = jsPlumb.value.addEndpoint(node12.value, {
-    anchor: 'Continuous',
-    paintStyle: { fill: 'blue' },
-  });
-
-  const endpoint13 = jsPlumb.value.addEndpoint(node13.value, {
-    anchor: {
-      type: 'Continuous',
-      options: { faces: ['top', 'left'] },
-    },
-    paintStyle: { fill: 'red' },
-  });
-  const endpoint14 = jsPlumb.value.addEndpoint(node14.value, {
-    anchor: { type: 'Continuous', options: { faces: ['bottom', 'right'] } },
-    paintStyle: { fill: 'blue' },
+    anchor: [0, 0.9, -1, 0],
   });
 
   jsPlumb.value.connect({
-    source: endpoint1_1,
-    target: endpoint2,
-    connector: 'Flowchart',
+    source: node1.value,
+    target: node2.value,
+    connector: StraightConnector.type,
   });
   jsPlumb.value.connect({
     source: endpoint3,
@@ -307,24 +249,96 @@ onMounted(() => {
     connector: 'Flowchart',
   });
   jsPlumb.value.connect({
-    source: endpoint5,
-    target: endpoint6,
-  });
-  jsPlumb.value.connect({
     source: endpoint7,
     target: endpoint8,
+    connector: {
+      type: 'Bezier',
+      options: {
+        curviness: 150,
+      },
+    },
   });
   jsPlumb.value.connect({
-    source: endpoint9,
-    target: endpoint10,
+    source: node8.value,
+    target: node9.value,
+    endpoint: {
+      type: 'Dot',
+      options: {
+        radius: 4,
+      },
+    },
+    anchors: [
+      [1, 0.5, 1, 0],
+      [0, 0.5, -1, 0],
+    ],
+    connector: {
+      type: 'Bezier',
+      options: {
+        curviness: 10,
+      },
+    },
   });
   jsPlumb.value.connect({
-    source: endpoint11,
-    target: endpoint12,
+    source: node10.value,
+    target: node11.value,
+    endpoint: 'Dot',
+    anchors: ['Bottom', [0.3, 0, 0, -1]],
+    connector: 'Straight',
+  });
+
+  jsPlumb.value.connect({
+    source: node11.value,
+    target: node12.value,
+    endpoint: 'Dot',
+    anchors: [
+      [0.7, 0, 0, -1],
+      [0.3, 1, 0, 1],
+    ],
+    connector: {
+      type: 'Straight',
+      options: {
+        stub: 30,
+      },
+    },
   });
   jsPlumb.value.connect({
-    source: endpoint13,
-    target: endpoint14,
+    source: node12.value,
+    target: node13.value,
+    endpoint: 'Dot',
+    anchors: [[0.7, 1, 0, 1], 'Top'],
+    connector: {
+      type: 'Straight',
+      options: {
+        gap: 20,
+      },
+    },
+  });
+  jsPlumb.value.connect({
+    source: node14.value,
+    target: node15.value,
+    endpoint: 'Dot',
+    anchors: ['Top', 'Top'],
+    connector: 'Flowchart',
+  });
+
+  jsPlumb.value.connect({
+    source: node16.value,
+    target: node17.value,
+    endpoint: 'Dot',
+    anchors: ['Top', 'Top'],
+    connector: 'Flowchart',
+    paintStyle: {
+      stroke: '#40BDEC',
+      strokeWidth: 2,
+      outlineStroke: '#FFF',
+      outlineWidth: 8,
+    },
+    hoverPaintStyle: {
+      stroke: '#40BDEC',
+      strokeWidth: 4,
+      outlineStroke: '#FFF',
+      outlineWidth: 8,
+    },
   });
 });
 </script>

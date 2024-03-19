@@ -1,6 +1,6 @@
 # jsPlumb Sample Course 1
 
-jsPlumb 中的 Anchor 参数详细介绍与演示
+jsPlumb 中的 Connector 参数详细介绍与演示
 
 ### 运行环境
 
