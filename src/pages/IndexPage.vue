@@ -12,14 +12,14 @@
       <div
         class="rectangle-node items-center justify-center row"
         ref="node2"
-        style="top: 100px; left: 300px"
+        style="top: 100px; left: 500px"
       >
         节点2
       </div>
       <div
         class="rectangle-node items-center justify-center row"
         ref="node3"
-        style="top: 100px; left: 500px"
+        style="top: 200px; left: 100px"
       >
         节点3
       </div>
@@ -27,7 +27,7 @@
       <div
         class="rectangle-node items-center justify-center row"
         ref="node4"
-        style="top: 100px; left: 700px"
+        style="top: 200px; left: 400px"
       >
         节点4
       </div>
@@ -35,102 +35,50 @@
       <div
         class="rectangle-node items-center justify-center row"
         ref="node5"
-        style="top: 300px; left: 100px"
+        style="top: 200px; left: 550px"
       >
-        节点5-source
+        节点5
       </div>
       <div
         class="rectangle-node items-center justify-center row"
         ref="node6"
-        style="top: 300px; left: 300px"
+        style="top: 200px; left: 800px"
       >
-        节点6-target
+        节点6
       </div>
 
       <div
         class="rectangle-node items-center justify-center column"
         ref="node7"
-        style="top: 300px; left: 500px"
+        style="top: 300px; left: 100px"
       >
-        <span class="col">节点7-Bezier</span>
-        <span class="col">curviness=150</span>
+        <span class="col">节点7-Overlay</span>
+        <span class="col">Label</span>
       </div>
       <div
         class="rectangle-node items-center justify-center column"
         ref="node8"
-        style="top: 200px; left: 700px"
+        style="top: 300px; left: 400px"
       >
-        <span class="col">节点8-Bezier</span>
-        <span class="col">curviness=150</span>
+        <span class="col">节点8-Overlay</span>
+        <span class="col">Label</span>
       </div>
 
       <div
         class="rectangle-node items-center justify-center column"
         ref="node9"
-        style="top: 300px; left: 870px"
+        style="top: 300px; left: 600px"
       >
-        <span class="col">节点9-Bezier</span>
-        <span class="col">curviness=10</span>
+        <span class="col">节点9-Overlay</span>
+        <span class="col">Custom</span>
       </div>
       <div
         class="rectangle-node items-center justify-center column"
         ref="node10"
-        style="top: 400px; left: 100px"
+        style="top: 300px; left: 850px"
       >
-        <span class="col">节点10-Straight</span>
-        <span class="col">默认</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node11"
-        style="top: 550px; left: 200px"
-      >
-        <span class="col">节点11-Straight</span>
-        <span class="col">默认+stub=30</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node12"
-        style="top: 400px; left: 300px"
-      >
-        <span class="col">节点12-Straight</span>
-        <span class="col">stub=30,gap=20</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node13"
-        style="top: 550px; left: 400px"
-      >
-        <span class="col">节点13-Straight</span>
-        <span class="col">gap=20</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node14"
-        style="top: 700px; left: 100px"
-      >
-        <span class="col">节点14-PaintStyle</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node15"
-        style="top: 700px; left: 300px"
-      >
-        <span class="col">节点15-PaintStyle</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node16"
-        style="top: 700px; left: 500px"
-      >
-        <span class="col">节点16-PaintStyle</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node17"
-        style="top: 700px; left: 700px"
-      >
-        <span class="col">节点17-PaintStyle</span>
+        <span class="col">节点10-Overlay</span>
+        <span class="col">Custom</span>
       </div>
     </div>
   </q-page>
@@ -143,6 +91,7 @@ import {
   BrowserJsPlumbInstance,
   AnchorLocations,
   StraightConnector,
+  Component,
 } from '@jsplumb/browser-ui';
 
 const canvas = ref<HTMLElement>();
@@ -169,177 +118,143 @@ const jsPlumb = ref<BrowserJsPlumbInstance>();
 onMounted(() => {
   jsPlumb.value = newInstance({
     container: canvas.value,
-    // 全局线条样式配置
-    // paintStyle: {
-    //   stroke: 'red',
-    //   strokeWidth: 5,
-    //   outlineStroke: 'blue',
-    //   outlineWidth: 5,
-    // },
   });
 
   const endpoint3 = jsPlumb.value.addEndpoint(node3.value, {
-    endpoint: {
-      type: 'Rectangle',
-      options: {
-        width: 10,
-        height: 10,
-      },
-    },
+    source: true,
+    endpoint: 'Rectangle',
     anchor: AnchorLocations.Right,
+    connectorOverlays: [
+      { type: 'PlainArrow', options: { location: 1 } },
+      { type: 'Label', options: { label: 'From Node3', id: 'node3-overlay' } },
+    ],
   });
   const endpoint4 = jsPlumb.value.addEndpoint(node4.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    anchor: AnchorLocations.Left,
-  });
-  const endpoint5 = jsPlumb.value.addEndpoint(node5.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    source: true,
-    anchor: AnchorLocations.Right,
-  });
-
-  const endpoint6 = jsPlumb.value.addEndpoint(node6.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
     target: true,
+    endpoint: 'Dot',
     anchor: AnchorLocations.Left,
-  });
-
-  const endpoint7 = jsPlumb.value.addEndpoint(node7.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    anchor: [1, 0.1, 1, 0],
-  });
-  const endpoint8 = jsPlumb.value.addEndpoint(node8.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    anchor: [0, 0.9, -1, 0],
   });
 
   jsPlumb.value.connect({
     source: node1.value,
     target: node2.value,
+    anchors: ['Right', 'Left'],
     connector: StraightConnector.type,
-  });
-  jsPlumb.value.connect({
-    source: endpoint3,
-    target: endpoint4,
-    connector: 'Flowchart',
-  });
-  jsPlumb.value.connect({
-    source: endpoint7,
-    target: endpoint8,
-    connector: {
-      type: 'Bezier',
-      options: {
-        curviness: 150,
+    overlays: [
+      {
+        type: 'Arrow',
+        options: {
+          location: 1,
+        },
       },
-    },
-  });
-  jsPlumb.value.connect({
-    source: node8.value,
-    target: node9.value,
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 4,
+      {
+        type: 'PlainArrow',
+        options: {
+          location: 0.25,
+        },
       },
-    },
-    anchors: [
-      [1, 0.5, 1, 0],
-      [0, 0.5, -1, 0],
+      {
+        type: 'Diamond',
+        options: {
+          location: 0.75,
+        },
+      },
+      {
+        type: 'Label',
+        options: {
+          label: 'myLabel',
+          location: 0.5,
+        },
+      },
     ],
-    connector: {
-      type: 'Bezier',
-      options: {
-        curviness: 10,
-      },
-    },
-  });
-  jsPlumb.value.connect({
-    source: node10.value,
-    target: node11.value,
-    endpoint: 'Dot',
-    anchors: ['Bottom', [0.3, 0, 0, -1]],
-    connector: 'Straight',
   });
 
-  jsPlumb.value.connect({
-    source: node11.value,
-    target: node12.value,
-    endpoint: 'Dot',
-    anchors: [
-      [0.7, 0, 0, -1],
-      [0.3, 1, 0, 1],
-    ],
-    connector: {
-      type: 'Straight',
-      options: {
-        stub: 30,
-      },
-    },
-  });
-  jsPlumb.value.connect({
-    source: node12.value,
-    target: node13.value,
-    endpoint: 'Dot',
-    anchors: [[0.7, 1, 0, 1], 'Top'],
-    connector: {
-      type: 'Straight',
-      options: {
-        gap: 20,
-      },
-    },
-  });
-  jsPlumb.value.connect({
-    source: node14.value,
-    target: node15.value,
-    endpoint: 'Dot',
+  const conn_5_6 = jsPlumb.value.connect({
+    source: node5.value,
+    target: node6.value,
     anchors: ['Top', 'Top'],
     connector: 'Flowchart',
   });
+  conn_5_6.addOverlay({
+    type: 'PlainArrow',
+    options: { location: 1 },
+  });
+
+  const conn_7_8 = jsPlumb.value.connect({
+    source: node7.value,
+    target: node8.value,
+    connector: 'Flowchart',
+    anchors: ['Top', 'Top'],
+    overlays: [
+      {
+        type: 'Label',
+        options: {
+          location: 0.3,
+          label: 'Label1',
+          cssClass: 'label-e1',
+          id: 'lab1',
+        },
+      },
+      {
+        type: 'Label',
+        options: {
+          location: 0.6,
+          label: 'Label2',
+          labelStyle: { color: 'blue' },
+          id: 'lab2',
+        },
+      },
+    ],
+  });
+
+  const conn_7_8_1 = jsPlumb.value.connect({
+    source: node7.value,
+    target: node8.value,
+    connector: 'Flowchart',
+    anchors: ['Bottom', 'Bottom'],
+    label: 'label by connect',
+  });
 
   jsPlumb.value.connect({
-    source: node16.value,
-    target: node17.value,
-    endpoint: 'Dot',
+    source: node9.value,
+    target: node10.value,
     anchors: ['Top', 'Top'],
     connector: 'Flowchart',
-    paintStyle: {
-      stroke: '#40BDEC',
-      strokeWidth: 2,
-      outlineStroke: '#FFF',
-      outlineWidth: 8,
-    },
-    hoverPaintStyle: {
-      stroke: '#40BDEC',
-      strokeWidth: 4,
-      outlineStroke: '#FFF',
-      outlineWidth: 8,
-    },
+    overlays: [
+      { type: 'Arrow', options: { location: 1 } },
+      {
+        type: 'Custom',
+        options: {
+          create: (component: Component) => {
+            console.log(component);
+            const d = document.createElement('span');
+            d.setAttribute('class', 'line-btn');
+            d.addEventListener('click', (event: MouseEvent) => {
+              event.stopPropagation();
+              alert('btn click');
+            });
+            d.innerHTML = '按钮';
+            return d;
+          },
+          location: 0.5,
+        },
+      },
+    ],
   });
+
+  // 隐藏所有overlay
+  conn_7_8.hideOverlays();
+  // 显示所有overlay
+  conn_7_8.showOverlays();
+
+  // 通过线条实例来显示/隐藏overlay
+  conn_7_8.hideOverlay('lab1');
+  conn_7_8.showOverlay('lab1');
+
+  // 通过overlay实例来显示/隐藏label
+  const lab2Overlay = conn_7_8.getOverlay('lab2');
+  lab2Overlay.setVisible(false);
+  lab2Overlay.setVisible(true);
 });
 </script>
 
@@ -362,6 +277,34 @@ onMounted(() => {
     width: 80px;
     height: 80px;
     border-radius: 40px;
+  }
+
+  .dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+  }
+  .red {
+    background: red;
+  }
+  .blue {
+    background: blue;
+  }
+
+  .label-e1 {
+    color: red;
+    padding: 4px;
+    background-color: blue;
+    height: 40px;
+  }
+
+  .line-btn {
+    color: white;
+    background-color: #40bdec;
+    font-size: 12px;
+    border-radius: 4px;
+    padding: 3px;
+    cursor: pointer;
   }
 }
 </style>
