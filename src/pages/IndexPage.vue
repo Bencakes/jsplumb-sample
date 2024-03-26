@@ -132,6 +132,23 @@
       >
         <span class="col">节点17-PaintStyle</span>
       </div>
+
+      <div
+        class="rectangle-node items-center justify-center column"
+        ref="node18"
+        style="top: 400px; left: 500px"
+      >
+        <span class="col">节点18-Selector</span>
+        <span class="dot source-selector"></span>
+      </div>
+      <div
+        class="rectangle-node items-center justify-center column"
+        ref="node19"
+        style="top: 400px; left: 800px"
+      >
+        <span class="col">节点19-Selector</span>
+        <span class="dot target-selector"></span>
+      </div>
     </div>
   </q-page>
 </template>
@@ -163,12 +180,21 @@ const node14 = ref<Element>(Object());
 const node15 = ref<Element>(Object());
 const node16 = ref<Element>(Object());
 const node17 = ref<Element>(Object());
+const node18 = ref<Element>(Object());
+const node19 = ref<Element>(Object());
 
 const jsPlumb = ref<BrowserJsPlumbInstance>();
 
 onMounted(() => {
   jsPlumb.value = newInstance({
     container: canvas.value,
+
+    // 禁止断开连线配置
+    // connectionsDetachable: false,
+
+    // 自动重连配置
+    // reattachConnections: true,
+
     // 全局线条样式配置
     // paintStyle: {
     //   stroke: 'red',
@@ -187,6 +213,8 @@ onMounted(() => {
       },
     },
     anchor: AnchorLocations.Right,
+    // connectionsDetachable: false,
+    // reattachConnections: true,
   });
   const endpoint4 = jsPlumb.value.addEndpoint(node4.value, {
     endpoint: {
@@ -247,6 +275,8 @@ onMounted(() => {
     source: endpoint3,
     target: endpoint4,
     connector: 'Flowchart',
+    // detachable: false,
+    // reattach: true
   });
   jsPlumb.value.connect({
     source: endpoint7,
@@ -340,6 +370,19 @@ onMounted(() => {
       outlineWidth: 8,
     },
   });
+
+  jsPlumb.value.manage(node18.value);
+  jsPlumb.value.manage(node19.value);
+
+  jsPlumb.value.addSourceSelector('.source-selector', {
+    endpoint: 'Dot',
+    anchor: 'Top',
+    connector: 'Flowchart',
+  });
+  jsPlumb.value.addTargetSelector('.target-selector', {
+    endpoint: 'Dot',
+    anchor: 'Top',
+  });
 });
 </script>
 
@@ -362,6 +405,18 @@ onMounted(() => {
     width: 80px;
     height: 80px;
     border-radius: 40px;
+  }
+
+  .dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+  }
+  .source-selector {
+    background-color: red;
+  }
+  .target-selector {
+    background-color: blue;
   }
 }
 </style>
