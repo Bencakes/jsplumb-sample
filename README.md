@@ -1,10 +1,10 @@
 # jsPlumb Sample Course 1
 
-jsPlumb 中的 Connector 参数详细介绍与演示
+jsPlumb demo，演示了拖拽创建节点，拖拽移动，节点连线，设置文案等功能
 
 ### 运行环境
 
-node16.x， quasar cli
+node16.x， quasar cli，vue3，typescript4，quasar2
 
 ## Install the dependencies
 

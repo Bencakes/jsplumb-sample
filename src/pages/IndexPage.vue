@@ -1,392 +1,360 @@
 <template>
   <q-page class="row items-center justify-evenly">
-    <div class="canvas" ref="canvas">
+    <div class="body">
       <div
-        class="rectangle-node items-center justify-center row"
-        ref="node1"
-        style="top: 100px; left: 100px"
+        class="toolbar row items-center justify-start"
+        @mousemove="dragMove"
+        @mouseup="dragNodeFinish"
       >
-        节点1
-      </div>
-
-      <div
-        class="rectangle-node items-center justify-center row"
-        ref="node2"
-        style="top: 100px; left: 300px"
-      >
-        节点2
-      </div>
-      <div
-        class="rectangle-node items-center justify-center row"
-        ref="node3"
-        style="top: 100px; left: 500px"
-      >
-        节点3
-      </div>
-
-      <div
-        class="rectangle-node items-center justify-center row"
-        ref="node4"
-        style="top: 100px; left: 700px"
-      >
-        节点4
-      </div>
-
-      <div
-        class="rectangle-node items-center justify-center row"
-        ref="node5"
-        style="top: 300px; left: 100px"
-      >
-        节点5-source
+        <div
+          class="rectangle element"
+          @mousedown="dragStart('rectangle')"
+        ></div>
+        <div class="prism element" @mousedown="dragStart('prism')"></div>
+        <div class="circle element" @mousedown="dragStart('circle')"></div>
+        <div
+          class="toolbar-drag-node"
+          :class="dragNodeType"
+          :style="{
+            top: dragNodePosition.y + 'px',
+            left: dragNodePosition.x + 'px',
+          }"
+          v-if="dragStartFlag === true && draggingFlag == true"
+        ></div>
       </div>
       <div
-        class="rectangle-node items-center justify-center row"
-        ref="node6"
-        style="top: 300px; left: 300px"
+        class="canvas"
+        ref="canvas"
+        @mouseup="dragNodeFinish"
+        @mousemove="nodeMove"
+        @click="clickCanvas"
       >
-        节点6-target
-      </div>
-
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node7"
-        style="top: 300px; left: 500px"
-      >
-        <span class="col">节点7-Bezier</span>
-        <span class="col">curviness=150</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node8"
-        style="top: 200px; left: 700px"
-      >
-        <span class="col">节点8-Bezier</span>
-        <span class="col">curviness=150</span>
-      </div>
-
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node9"
-        style="top: 300px; left: 870px"
-      >
-        <span class="col">节点9-Bezier</span>
-        <span class="col">curviness=10</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node10"
-        style="top: 400px; left: 100px"
-      >
-        <span class="col">节点10-Straight</span>
-        <span class="col">默认</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node11"
-        style="top: 550px; left: 200px"
-      >
-        <span class="col">节点11-Straight</span>
-        <span class="col">默认+stub=30</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node12"
-        style="top: 400px; left: 300px"
-      >
-        <span class="col">节点12-Straight</span>
-        <span class="col">stub=30,gap=20</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node13"
-        style="top: 550px; left: 400px"
-      >
-        <span class="col">节点13-Straight</span>
-        <span class="col">gap=20</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node14"
-        style="top: 700px; left: 100px"
-      >
-        <span class="col">节点14-PaintStyle</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node15"
-        style="top: 700px; left: 300px"
-      >
-        <span class="col">节点15-PaintStyle</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node16"
-        style="top: 700px; left: 500px"
-      >
-        <span class="col">节点16-PaintStyle</span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node17"
-        style="top: 700px; left: 700px"
-      >
-        <span class="col">节点17-PaintStyle</span>
-      </div>
-
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node18"
-        style="top: 400px; left: 500px"
-      >
-        <span class="col">节点18-Selector</span>
-        <span class="dot source-selector"></span>
-      </div>
-      <div
-        class="rectangle-node items-center justify-center column"
-        ref="node19"
-        style="top: 400px; left: 800px"
-      >
-        <span class="col">节点19-Selector</span>
-        <span class="dot target-selector"></span>
+        <div
+          v-for="n in nodeList"
+          :key="n"
+          :class="n.type + '-node'"
+          :style="{ top: n.y + 'px', left: n.x + 'px' }"
+          ref="nodeListRefs"
+        ></div>
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import {
   newInstance,
   BrowserJsPlumbInstance,
   AnchorLocations,
-  StraightConnector,
+  ContainmentType,
+  Connection,
+  Component,
+  EVENT_CONNECTION_CLICK,
+  EVENT_CONNECTION_DBL_CLICK,
+  EVENT_CONNECTION,
+  ConnectionEstablishedParams,
+  LabelOverlay,
 } from '@jsplumb/browser-ui';
 
 const canvas = ref<HTMLElement>();
-const node1 = ref<Element>(Object());
-const node2 = ref<Element>(Object());
-const node3 = ref<Element>(Object());
-const node4 = ref<Element>(Object());
-const node5 = ref<Element>(Object());
-const node6 = ref<Element>(Object());
-const node7 = ref<Element>(Object());
-const node8 = ref<Element>(Object());
-const node9 = ref<Element>(Object());
-const node10 = ref<Element>(Object());
-const node11 = ref<Element>(Object());
-const node12 = ref<Element>(Object());
-const node13 = ref<Element>(Object());
-const node14 = ref<Element>(Object());
-const node15 = ref<Element>(Object());
-const node16 = ref<Element>(Object());
-const node17 = ref<Element>(Object());
-const node18 = ref<Element>(Object());
-const node19 = ref<Element>(Object());
+
+const dragStartFlag = ref(false);
+const draggingFlag = ref(false);
+
+const dragNodeType = ref('');
+const dragNodePosition = ref({
+  x: 0,
+  y: 0,
+});
+
+const nodeList = ref<any[]>([]);
+// 画布中的节点列表DOM引用
+const nodeListRefs = ref<any[]>([]);
 
 const jsPlumb = ref<BrowserJsPlumbInstance>();
 
 onMounted(() => {
   jsPlumb.value = newInstance({
     container: canvas.value,
-
-    // 禁止断开连线配置
-    // connectionsDetachable: false,
-
-    // 自动重连配置
-    // reattachConnections: true,
-
-    // 全局线条样式配置
-    // paintStyle: {
-    //   stroke: 'red',
-    //   strokeWidth: 5,
-    //   outlineStroke: 'blue',
-    //   outlineWidth: 5,
-    // },
-  });
-
-  const endpoint3 = jsPlumb.value.addEndpoint(node3.value, {
-    endpoint: {
-      type: 'Rectangle',
-      options: {
-        width: 10,
-        height: 10,
-      },
-    },
-    anchor: AnchorLocations.Right,
-    // connectionsDetachable: false,
-    // reattachConnections: true,
-  });
-  const endpoint4 = jsPlumb.value.addEndpoint(node4.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    anchor: AnchorLocations.Left,
-  });
-  const endpoint5 = jsPlumb.value.addEndpoint(node5.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    source: true,
-    anchor: AnchorLocations.Right,
-  });
-
-  const endpoint6 = jsPlumb.value.addEndpoint(node6.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    target: true,
-    anchor: AnchorLocations.Left,
-  });
-
-  const endpoint7 = jsPlumb.value.addEndpoint(node7.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    anchor: [1, 0.1, 1, 0],
-  });
-  const endpoint8 = jsPlumb.value.addEndpoint(node8.value, {
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 5,
-      },
-    },
-    anchor: [0, 0.9, -1, 0],
-  });
-
-  jsPlumb.value.connect({
-    source: node1.value,
-    target: node2.value,
-    connector: StraightConnector.type,
-  });
-  jsPlumb.value.connect({
-    source: endpoint3,
-    target: endpoint4,
-    connector: 'Flowchart',
-    // detachable: false,
-    // reattach: true
-  });
-  jsPlumb.value.connect({
-    source: endpoint7,
-    target: endpoint8,
-    connector: {
-      type: 'Bezier',
-      options: {
-        curviness: 150,
-      },
-    },
-  });
-  jsPlumb.value.connect({
-    source: node8.value,
-    target: node9.value,
-    endpoint: {
-      type: 'Dot',
-      options: {
-        radius: 4,
-      },
-    },
-    anchors: [
-      [1, 0.5, 1, 0],
-      [0, 0.5, -1, 0],
-    ],
-    connector: {
-      type: 'Bezier',
-      options: {
-        curviness: 10,
-      },
-    },
-  });
-  jsPlumb.value.connect({
-    source: node10.value,
-    target: node11.value,
-    endpoint: 'Dot',
-    anchors: ['Bottom', [0.3, 0, 0, -1]],
-    connector: 'Straight',
-  });
-
-  jsPlumb.value.connect({
-    source: node11.value,
-    target: node12.value,
-    endpoint: 'Dot',
-    anchors: [
-      [0.7, 0, 0, -1],
-      [0.3, 1, 0, 1],
-    ],
-    connector: {
-      type: 'Straight',
-      options: {
-        stub: 30,
-      },
-    },
-  });
-  jsPlumb.value.connect({
-    source: node12.value,
-    target: node13.value,
-    endpoint: 'Dot',
-    anchors: [[0.7, 1, 0, 1], 'Top'],
-    connector: {
-      type: 'Straight',
-      options: {
-        gap: 20,
-      },
-    },
-  });
-  jsPlumb.value.connect({
-    source: node14.value,
-    target: node15.value,
-    endpoint: 'Dot',
-    anchors: ['Top', 'Top'],
-    connector: 'Flowchart',
-  });
-
-  jsPlumb.value.connect({
-    source: node16.value,
-    target: node17.value,
-    endpoint: 'Dot',
-    anchors: ['Top', 'Top'],
-    connector: 'Flowchart',
     paintStyle: {
       stroke: '#40BDEC',
       strokeWidth: 2,
-      outlineStroke: '#FFF',
-      outlineWidth: 8,
+      outlineStroke: '#ffffff00',
+      outlineWidth: 6,
     },
     hoverPaintStyle: {
       stroke: '#40BDEC',
-      strokeWidth: 4,
-      outlineStroke: '#FFF',
-      outlineWidth: 8,
+      strokeWidth: 3,
+      outlineStroke: '#ffffff00',
+      outlineWidth: 6,
+    },
+    endpointStyle: { stroke: '#ccc' },
+    connector: {
+      type: 'Flowchart',
+      options: {
+        cssClass: 'line',
+        hoverClass: 'line',
+      },
+    },
+    connectionOverlays: [
+      {
+        type: 'Arrow',
+        options: { location: 1, width: 10, length: 8 },
+      },
+    ],
+    dragOptions: {
+      containment: ContainmentType.parentEnclosed,
+      grid: { w: 20, h: 20 },
     },
   });
 
-  jsPlumb.value.manage(node18.value);
-  jsPlumb.value.manage(node19.value);
-
-  jsPlumb.value.addSourceSelector('.source-selector', {
-    endpoint: 'Dot',
-    anchor: 'Top',
-    connector: 'Flowchart',
+  jsPlumb.value.bind(EVENT_CONNECTION_CLICK, (connection: Connection) => {
+    _connectionClick(connection);
   });
-  jsPlumb.value.addTargetSelector('.target-selector', {
-    endpoint: 'Dot',
-    anchor: 'Top',
+
+  jsPlumb.value.bind(
+    EVENT_CONNECTION,
+    (params: ConnectionEstablishedParams) => {
+      // 给连线在起始位置添加一个可以用于删除连线的按钮
+      const cancelOverlayId = params.connection.getId() + 'cancelOverlay';
+      params.connection.addOverlay({
+        type: 'Custom',
+        options: {
+          create: () => {
+            const d = document.createElement('span');
+            d.setAttribute('class', 'line-cancel-icon hide');
+            d.onclick = () => removeConnection(params.connection);
+            d.innerHTML = 'x';
+            return d;
+          },
+          location: 0,
+          id: cancelOverlayId,
+        },
+      });
+
+      // 给连线在中间添加一个输入框
+      const inputOverlayId = params.connection.getId() + 'inputOverlay';
+      params.connection.addOverlay({
+        type: 'Custom',
+        options: {
+          create: () => {
+            const d = document.createElement('input');
+            d.setAttribute('class', 'input-overlay hide');
+            d.setAttribute(
+              'id',
+              'conn-input-overlay-' + params.connection.getId()
+            );
+            d.onclick = (event) => clickInputOverlay(event);
+            return d;
+          },
+          location: 0.5,
+          id: inputOverlayId,
+        },
+      });
+    }
+  );
+
+  jsPlumb.value.bind(EVENT_CONNECTION_DBL_CLICK, (connector: Connection) => {
+    console.log(connector, connector.getLabel(), connector.getLabelOverlay());
+    const overlayId = 'conn-input-overlay-' + connector.getId();
+    const overlay = connector.getOverlay(overlayId) as LabelOverlay;
+    if (overlay && overlay.isVisible()) {
+      const input = document.getElementById(overlayId) as HTMLInputElement;
+      const label = overlay.getLabel();
+      connector.removeOverlay(overlayId);
+      input.value = label;
+    }
+    connector.showOverlay(connector.getId() + 'inputOverlay');
   });
 });
+
+function _connectionClick(connector: Connection) {
+  connector.showOverlay(connector.getId() + 'cancelOverlay');
+}
+
+// mousedown事件，在工具栏中开始拖拽图标
+function dragStart(nodeType: string) {
+  dragStartFlag.value = true;
+  dragNodeType.value = nodeType;
+}
+// mousemove事件，工具栏中的结点移动
+function dragMove(e: MouseEvent) {
+  if (!dragStartFlag.value) {
+    return;
+  }
+
+  if (dragStartFlag.value && !draggingFlag.value) {
+    dragNodePosition.value.x = e.clientX;
+    dragNodePosition.value.y = e.clientY;
+    draggingFlag.value = true;
+  } else if (draggingFlag.value) {
+    dragNodePosition.value.x = e.clientX;
+    dragNodePosition.value.y = e.clientY;
+  }
+}
+
+// 画布中的结点移动
+function nodeMove(e: MouseEvent) {
+  if (!dragNodePosition.value || !canvas.value) {
+    return;
+  }
+
+  if (draggingFlag.value) {
+    // 表示节点是从工具栏拖拽到画布中的，此时拖拽的节点还属于工具栏的子节点而不是在画布中
+    dragNodePosition.value.x = e.clientX;
+    dragNodePosition.value.y = e.clientY;
+  }
+}
+
+// mouseup事件，工具栏与画布都绑定了此事件
+function dragNodeFinish(e: MouseEvent) {
+  if (!canvas.value) {
+    dragStartFlag.value = false;
+    draggingFlag.value = false;
+    return;
+  }
+
+  if (draggingFlag.value) {
+    // 表示是从工具栏开始的，正在进行中的拖拽事件
+    dragStartFlag.value = false;
+    draggingFlag.value = false;
+    // 判断当前鼠标位置，是否在画布内，如果在画布内，则创建节点
+    let canvasRect = canvas.value.getBoundingClientRect();
+    console.log(
+      'clientX:' + e.clientX + ' -- ' + canvasRect.x,
+      'clientY:' + e.clientY + ' -- ' + canvasRect.y
+    );
+    if (e.clientX > canvasRect.x && e.clientY > canvasRect.y) {
+      _createNode();
+    }
+  }
+}
+
+function _createNode() {
+  if (!dragNodePosition.value || !canvas.value) {
+    return;
+  }
+
+  const newNode = {
+    type: dragNodeType.value,
+    x: dragNodePosition.value.x - canvas.value.getBoundingClientRect().left,
+    y: dragNodePosition.value.y - canvas.value.getBoundingClientRect().top,
+    refs: null,
+  };
+
+  nodeList.value.push(newNode);
+
+  nextTick().then(() => {
+    newNode.refs = nodeListRefs.value[nodeList.value.length - 1];
+    initialJsPlumbNode(newNode);
+  });
+}
+
+function initialJsPlumbNode(node: any) {
+  if (!node.refs || !jsPlumb.value) {
+    return;
+  }
+
+  jsPlumb.value.manage(node.refs);
+  const anchors: AnchorLocations[] = [
+    AnchorLocations.Top,
+    AnchorLocations.Bottom,
+    AnchorLocations.Left,
+    AnchorLocations.Right,
+    AnchorLocations.TopLeft,
+    AnchorLocations.TopRight,
+    AnchorLocations.BottomLeft,
+    AnchorLocations.BottomRight,
+  ];
+  for (const anchorLocation of anchors) {
+    const ep = jsPlumb.value.addEndpoint(node.refs, {
+      endpoint: {
+        type: 'Dot',
+        options: {
+          radius: 4,
+        },
+      },
+      source: true,
+      target: true,
+      anchor: anchorLocation,
+    });
+  }
+}
+
+function removeConnection(conn: Connection) {
+  jsPlumb.value?.deleteConnection(conn);
+}
+
+function clickInputOverlay(event: MouseEvent) {
+  event.stopPropagation();
+}
+
+function clickCanvas() {
+  jsPlumb.value?.select().each((connection) => {
+    const overlayId = connection.getId() + 'cancelOverlay';
+    connection.hideOverlay(overlayId);
+    const inputId = connection.getId() + 'inputOverlay';
+    const inputOverlay = connection.getOverlay(inputId);
+
+    if (inputOverlay && inputOverlay.isVisible()) {
+      connection.hideOverlay(inputId);
+      const label = (
+        document.getElementById(
+          'conn-input-overlay-' + connection.getId()
+        ) as HTMLInputElement
+      ).value;
+      if (label && label.trim()) {
+        const labelOverlay = connection.addOverlay({
+          type: 'Label',
+          options: {
+            label: label,
+            location: 0.5,
+            id: 'conn-input-overlay-' + connection.getId(),
+          },
+        });
+        jsPlumb.value?.setHover(connection, false);
+      }
+    }
+  });
+}
 </script>
 
 <style lang="scss">
+.toolbar {
+  // position: relative;
+  width: 1000px;
+  height: 80px;
+  margin-top: 10px;
+  border: 1px solid #696868ba;
+  padding-left: 20px;
+
+  .toolbar-drag-node {
+    position: absolute;
+  }
+
+  .element {
+    margin-right: 40px;
+  }
+
+  .rectangle {
+    width: 100px;
+    height: 40px;
+    border: 1px solid #000000;
+  }
+  .circle {
+    border: 1px solid #000000;
+    width: 60px;
+    height: 60px;
+    border-radius: 40px;
+  }
+  .prism {
+    width: 60px;
+    height: 60px;
+    border: 1px solid #000000;
+    transform: rotate(45deg) skew(-12deg, -12deg);
+  }
+}
 .canvas {
   position: relative;
   width: 1000px;
@@ -406,17 +374,37 @@ onMounted(() => {
     height: 80px;
     border-radius: 40px;
   }
+  .prism-node {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    border: 1px solid #000000;
+    transform: rotate(45deg) skew(-12deg, -12deg);
+  }
 
-  .dot {
-    width: 20px;
-    height: 20px;
-    border-radius: 10px;
+  .line {
+    cursor: pointer;
   }
-  .source-selector {
+  .line-cancel-icon {
+    text-align: center;
+    width: 12px;
+    height: 12px;
+    line-height: 12px;
+    font-size: 12px;
+    font-weight: bolder;
+    color: white;
     background-color: red;
+    border-radius: 6px;
+    cursor: pointer;
   }
-  .target-selector {
-    background-color: blue;
+  .line-cancel-icon.hide {
+    display: none;
+  }
+  .input-overlay {
+    width: 80px;
+  }
+  .input-overlay.hide {
+    display: none;
   }
 }
 </style>
